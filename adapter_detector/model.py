@@ -12,5 +12,5 @@ def load_adapter_model(model_fn=None):
                                 'adapter_model.h5')
     if not os.path.exists(model_fn):
         raise OSError('Model file {} does not exist'.format(model_fn))
-    model = models.load_model(model_fn)
+    model = load_model(model_fn)
     return model

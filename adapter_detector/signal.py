@@ -13,19 +13,19 @@ def mad_scaling(signal):
     return (signal - shift) / scale
 
 
-def get_fast5_fiveprime(fast5_fn, signal_size):
+def get_fast5_fiveprime(read_id, fast5_fn, signal_size):
     '''
     Open fast5 file and return final signal_size measurements
     (corresponding to 5' end of an RNA signal). Signals
     are MAD scaled before the end is cropped.
     '''
-    with Fast5File(f5_fn) as f5:
+    with Fast5File(fast5_fn) as f5:
         signal = f5.get_raw_data(scale=True)
         signal = mad_scaling(signal)
         sig_len = len(signal)
-        if sig_len >= size:
-            fiveprime = signal[sig_len - size:]
+        if sig_len >= signal_size:
+            fiveprime = signal[sig_len - signal_size:]
         else:
             fiveprime = np.zeros(size)
             fiveprime[size - len(signal):] = signal
-    return fiveprime
+    return read_id, fiveprime

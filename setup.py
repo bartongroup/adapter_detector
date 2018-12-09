@@ -20,7 +20,6 @@ setup(
     install_requires=[
         'numpy',
         'keras',
-        'tensorflow',
         'click',
         'pysam',
         'ont_fast5_api'
