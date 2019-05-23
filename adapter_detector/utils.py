@@ -13,7 +13,7 @@ def find_summary_files(basedir):
                 i += 1
                 yield os.path.join(currdir, fn)
     if not i:
-        raise FileError('Could not find any sequencing_summary.txt files')
+        raise IOError('Could not find any sequencing_summary.txt files')
 
 
 def parse_sequencing_summary(seq_summary_fn):
@@ -44,7 +44,7 @@ def find_fast5s(basedir):
                 i += 1
                 yield os.path.join(currdir, fn)
     if not i:
-        raise FileError('Could not find any Fast5 files')
+        raise IOError('Could not find any Fast5 files')
 
 
 def get_full_filepath_for_read_id_mappings(read_id_filemap, fast5_basedir):
@@ -53,16 +53,20 @@ def get_full_filepath_for_read_id_mappings(read_id_filemap, fast5_basedir):
     Files or read ids that cannot be found in fast5_basedir
     will be removed.
     '''
-    # invert filemap
-    inv_filemap = {fn: read_id for read_id, fn in read_id_filemap.items()}
+    fullpath_filemap = {}
     read_id_map_with_fullpaths = {}
     for fullpath in find_fast5s(fast5_basedir):
         _, basename = os.path.split(fullpath)
+        if basename not in fullpath_filemap:
+            fullpath_filemap[basename] = [fullpath,]
+        else:
+            fullpath_filemap[basename].append(fullpath)
+    read_id_map_with_fullpaths = {}
+    for read_id, basename in read_id_filemap.items():
         try:
-            read_id = inv_filemap[basename]
+            read_id_map_with_fullpaths[read_id] = fullpath_filemap[basename]
         except KeyError:
             continue
-        read_id_map_with_fullpaths[read_id] = fullpath
     return read_id_map_with_fullpaths
 
 
@@ -99,9 +103,15 @@ def get_fast5_read_id_mapping(summaries_basedir, fast5_basedir):
     return read_id_filemap
 
 
-def get_output_bam_filenames(output_basename):
+def get_output_filenames(output_basename, filetype='bam'):
+    if filetype == 'bam':
+        ext = '.bam'
+    elif filetype == 'fastq':
+        ext = '.fq'
+    else:
+        raise TypeError('Not FastQ or BAM')
     if os.path.isdir(output_basename):
         raise IOError('output_bam_basename is a directory')
     else:
-        return (output_basename + '.passes.bam',
-                output_basename + '.fails.bam')
+        return (output_basename + '.passes' + ext,
+                output_basename + '.fails' + ext)

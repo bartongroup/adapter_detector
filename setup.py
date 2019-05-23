@@ -11,6 +11,7 @@ setup(
     entry_points={
         'console_scripts': [
             'adapter_detector = adapter_detector.filter:cli',
+            'train_adapter_detector = adapter_detector.train:cli'
         ]
     },
     packages=[
@@ -21,6 +22,8 @@ setup(
         'numpy',
         'keras',
         'click',
+        'click_log',
+        'joblib',
         'pysam',
         'ont_fast5_api'
     ],
